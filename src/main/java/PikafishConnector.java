@@ -24,7 +24,6 @@ public class PikafishConnector {
     @ConfigProperty(name = "endpoint.uri")
     URI myUri;
 
-    @ConfigProperty(name = "endpoint.headers.cookie")
     String endpointCookie;
 
     @Inject
@@ -44,12 +43,11 @@ public class PikafishConnector {
                 .getResourceAsStream("settings.txt");
         try {
             prop.load(inputStream);
-            log.info(prop.getProperty("ENDPOINT_HEADERS_COOKIE"));
+            endpointCookie = prop.getProperty("ENDPOINT_HEADERS_COOKIE");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
 
     void openAndSendMessage() {
         log.info("Sending a message");
