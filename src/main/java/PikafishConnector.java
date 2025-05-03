@@ -5,7 +5,6 @@ import io.quarkus.websockets.next.WebSocketConnector;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,10 +17,8 @@ import java.util.Scanner;
 
 @Singleton
 public class PikafishConnector {
-
     private static final Logger log = LoggerFactory.getLogger(PikafishConnector.class);
 
-    @ConfigProperty(name = "endpoint.uri")
     URI myUri;
 
     String endpointCookie;
@@ -43,6 +40,7 @@ public class PikafishConnector {
                 .getResourceAsStream("settings.txt");
         try {
             prop.load(inputStream);
+            myUri = URI.create(prop.getProperty("ENDPOINT_URI"));
             endpointCookie = prop.getProperty("ENDPOINT_HEADERS_COOKIE");
         } catch (IOException e) {
             throw new RuntimeException(e);
