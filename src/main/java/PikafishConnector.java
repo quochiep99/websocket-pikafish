@@ -1,4 +1,5 @@
 import io.quarkus.runtime.ShutdownEvent;
+import io.quarkus.runtime.StartupEvent;
 import io.quarkus.websockets.next.WebSocketClientConnection;
 import io.quarkus.websockets.next.WebSocketConnector;
 import jakarta.enterprise.event.Observes;
@@ -8,8 +9,13 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.List;
+import java.util.Properties;
 import java.util.Scanner;
 
 @Singleton
@@ -29,6 +35,23 @@ public class PikafishConnector {
     WebSocketClientConnection connection;
 
     String userInputCommand;
+
+    Properties prop = new Properties();
+
+    void onStart(@Observes StartupEvent ev) {
+        log.info("The application is starting...");
+        InputStream inputStream = this
+                .getClass()
+                .getClassLoader()
+                .getResourceAsStream("settings.txt");
+        try {
+            prop.load(inputStream);
+            log.info(prop.getProperty("ENDPOINT_HEADERS_COOKIE"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     void openAndSendMessage() {
         log.info("Sending a message");

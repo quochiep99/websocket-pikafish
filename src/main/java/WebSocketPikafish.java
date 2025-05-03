@@ -11,7 +11,7 @@ public class WebSocketPikafish implements QuarkusApplication {
 
     @Override
     public int run(String... args) throws Exception {
-        bean.openAndSendMessage();
+//        bean.openAndSendMessage();
         return 0;
     }
 }
