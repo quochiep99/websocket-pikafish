@@ -34,9 +34,9 @@ public class PikafishConnector {
 
     void onStart(@Observes StartupEvent ev) {
         log.info("The application is starting...");
-        InputStream inputStream = this
-                .getClass()
-                .getClassLoader()
+        InputStream inputStream = Thread
+                .currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("settings.txt");
         try {
             prop.load(inputStream);
