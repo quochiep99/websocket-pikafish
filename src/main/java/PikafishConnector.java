@@ -2,14 +2,17 @@ import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.websockets.next.WebSocketClientConnection;
 import io.quarkus.websockets.next.WebSocketConnector;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Destroyed;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 import java.util.Properties;
@@ -33,22 +36,19 @@ public class PikafishConnector {
     Properties prop = new Properties();
 
     void onStart(@Observes StartupEvent ev) {
-        log.info("The application is starting...");
-        InputStream inputStream = Thread
-                .currentThread()
-                .getContextClassLoader()
-                .getResourceAsStream("settings.txt");
+//        log.info("The application is starting...");
         try {
-            prop.load(inputStream);
+            BufferedReader br = new BufferedReader(new FileReader("settings.txt"));
+            prop.load(br);
             myUri = URI.create(prop.getProperty("ENDPOINT_URI"));
             endpointCookie = prop.getProperty("ENDPOINT_HEADERS_COOKIE");
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.info("Failed to open config file. Either because it is not found or it is not correctly formatted");
         }
     }
 
     void openAndSendMessage() {
-        log.info("Sending a message");
+//        log.info("Sending a message");
         connection = connector
                 .baseUri(myUri)
                 .addHeader("Cookie", endpointCookie)
@@ -61,7 +61,7 @@ public class PikafishConnector {
         }
     }
 
-    void onStop(@Observes ShutdownEvent ev) {
+    void onStop(@Observes @Destroyed(ApplicationScoped.class) ShutdownEvent ev) {
         userInputCommand = "stop";
         connection.sendTextAndAwait(List.of("stdin", String.format("%s\r", userInputCommand)));
         log.info("The application is stopping...");
